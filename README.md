@@ -84,6 +84,12 @@ No third-party dependencies, standard library only.
 pip install -e .
 ```
 
+## Tests
+
+```
+python -m unittest discover
+```
+
 ## Status
 
 Early. The grid model and numbering are solid; everything else (clue text,
