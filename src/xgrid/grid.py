@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 BLOCK = "#"
+EMPTY = "."  # an unfilled but fillable cell, as opposed to a letter
 
 
 @dataclass(frozen=True)

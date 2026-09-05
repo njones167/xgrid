@@ -5,9 +5,12 @@ import json
 import sys
 
 from .grid import Grid
+from .puz import PuzFile
 
 
 def _load_grid(path: str) -> Grid:
+    if path.lower().endswith(".puz"):
+        return PuzFile.read(path).solution
     with open(path, "r", encoding="utf-8") as handle:
         text = handle.read()
     return Grid.from_text(text)
@@ -51,7 +54,9 @@ def _print_human(report: dict) -> None:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="xgrid", description="Inspect crossword grid files.")
-    parser.add_argument("path", help="path to a grid text file (# for block cells)")
+    parser.add_argument(
+        "path", help="path to a grid text file (# for block cells) or a .puz file"
+    )
     parser.add_argument(
         "--json", action="store_true", help="emit machine-readable JSON instead of text"
     )

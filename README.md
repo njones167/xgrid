@@ -76,6 +76,37 @@ $ xgrid puzzle.txt --json
 }
 ```
 
+## .puz files
+
+The CLI reads `.puz` files (the format used by Across Lite and most other
+crossword software) directly, based on the file extension:
+
+```
+$ xgrid crossword.puz --json
+```
+
+For reading and writing them programmatically:
+
+```python
+from xgrid.puz import PuzFile
+
+puzzle = PuzFile.read("crossword.puz")
+print(puzzle.title, puzzle.author)
+print(puzzle.solution.to_text())
+
+puzzle.notes = "handmade, no rebus squares"
+puzzle.write("crossword-edited.puz")
+```
+
+`solution` and `fill` are `Grid` instances: the solved answers and the
+solver's current progress. `clues` is a flat list of strings in the same
+order as `Grid.slots()` (across then down for each number), but nothing
+associates a given clue with a given slot yet.
+
+Only the standard header, grid, and string sections are handled. Rebus
+squares, circled letters, timers, and other optional extension sections
+aren't parsed, and scrambled (locked) puzzles are rejected outright.
+
 ## Install
 
 No third-party dependencies, standard library only.
@@ -92,5 +123,6 @@ python -m unittest discover
 
 ## Status
 
-Early. The grid model and numbering are solid; everything else (clue text,
-puzzle formats like `.puz`, grid generation) is still to come.
+Early. The grid model, numbering, and basic `.puz` reading/writing are
+solid. Clue text isn't associated with individual slots yet, and there's
+no render command or grid generator.
