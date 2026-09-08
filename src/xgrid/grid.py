@@ -95,3 +95,26 @@ class Grid:
         return sum(
             1 for r in range(self.height) for c in range(self.width) if self.is_block(r, c)
         )
+
+    def render(self) -> str:
+        """Render the grid as text, with each row preceded by a line
+        showing the clue number (if any) above its starting cell.
+
+        A single character per cell can't hold both a fill letter and a
+        multi-digit clue number, so each grid row becomes two output
+        lines: a number line and a cell line, both padded to the same
+        column width so they line up.
+        """
+        numbers = self.numbering()
+        width = len(str(max(numbers.values()))) if numbers else 1
+        lines = []
+        for r in range(self.height):
+            number_fields = []
+            cell_fields = []
+            for c in range(self.width):
+                number = numbers.get((r, c))
+                number_fields.append(str(number).ljust(width) if number else " " * width)
+                cell_fields.append(self.rows[r][c].ljust(width))
+            lines.append(" ".join(number_fields).rstrip())
+            lines.append(" ".join(cell_fields).rstrip())
+        return "\n".join(lines)

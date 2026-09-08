@@ -78,6 +78,50 @@ class SlotExtractionTests(unittest.TestCase):
         self.assertTrue(all(slot.length >= 2 for slot in grid.slots()))
 
 
+class RenderTests(unittest.TestCase):
+    def test_readme_grid_render(self):
+        grid = Grid.from_text(README_GRID)
+        self.assertEqual(
+            grid.render(),
+            "\n".join(
+                [
+                    "    1   2",
+                    "# # . . .",
+                    "3 4",
+                    ". . . # .",
+                    "5",
+                    ". . . . .",
+                    "    7",
+                    ". # . . .",
+                    "8",
+                    ". . . # #",
+                ]
+            ),
+        )
+
+    def test_render_has_two_lines_per_grid_row(self):
+        grid = Grid.from_text(README_GRID)
+        self.assertEqual(len(grid.render().splitlines()), grid.height * 2)
+
+    def test_render_with_no_numbers(self):
+        grid = Grid(["###", "#.#", "###"])
+        self.assertEqual(grid.render(), "\n# # #\n\n# . #\n\n# # #")
+
+    def test_render_pads_columns_for_double_digit_numbers(self):
+        # 11 slots forces a two-character number field, which must line
+        # up with the single-character cell fields below it.
+        grid = Grid(
+            [
+                "..#..#..#..",
+                "..#..#..#..",
+            ]
+        )
+        rendered = grid.render()
+        number_line, cell_line = rendered.splitlines()[:2]
+        self.assertTrue(number_line.startswith("1 "))
+        self.assertTrue(cell_line.startswith(". "))
+
+
 class GridConstructionTests(unittest.TestCase):
     def test_from_text_skips_blank_lines(self):
         grid = Grid.from_text("\n\n...\n.#.\n...\n\n")

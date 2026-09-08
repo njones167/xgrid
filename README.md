@@ -56,6 +56,25 @@ symmetry: ok
   8 across  row 4 col 0 len 3
 ```
 
+Pass `--render` to print the grid with clue numbers overlaid instead of
+the slot report. A single character can't hold both a fill letter and a
+clue number, so each grid row prints as two lines, a number line above a
+cell line:
+
+```
+$ xgrid puzzle.txt --render
+    1   2
+# # . . .
+3 4
+. . . # .
+5
+. . . . .
+    7
+. # . . .
+8
+. . . # #
+```
+
 Pass `--json` for the same report as a JSON object instead of the text
 table above:
 
@@ -123,6 +142,6 @@ python -m unittest discover
 
 ## Status
 
-Early. The grid model, numbering, and basic `.puz` reading/writing are
-solid. Clue text isn't associated with individual slots yet, and there's
-no render command or grid generator.
+Early. The grid model, numbering, basic `.puz` reading/writing, and the
+`--render` command are solid. Clue text isn't associated with individual
+slots yet, and there's no grid generator.

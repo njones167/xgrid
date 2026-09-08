@@ -60,6 +60,11 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--json", action="store_true", help="emit machine-readable JSON instead of text"
     )
+    parser.add_argument(
+        "--render",
+        action="store_true",
+        help="print the grid with clue numbers overlaid instead of the slot report",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -67,6 +72,10 @@ def main(argv=None) -> int:
     except (OSError, ValueError) as exc:
         print(f"xgrid: {exc}", file=sys.stderr)
         return 1
+
+    if args.render:
+        print(grid.render())
+        return 0
 
     report = _analyze(grid)
     if args.json:
