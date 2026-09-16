@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Tuple
 
-from .grid import BLOCK, EMPTY, Grid
+from .grid import BLOCK, EMPTY, Grid, Slot
 
 ENCODING = "ISO-8859-1"
 FILE_MAGIC = b"ACROSS&DOWN\x00"
@@ -108,6 +108,35 @@ class PuzFile:
     author: str = ""
     copyright: str = ""
     notes: str = ""
+
+    def numbered_clues(self) -> List[Tuple[Slot, str]]:
+        """Pair each slot in the solution grid with its clue text.
+
+        .puz stores clues as a flat list, ordered by increasing cell
+        number and, for a cell that starts both an across and a down
+        entry, across before down. That's the same order Grid.slots()
+        produces, so the two line up positionally.
+        """
+        slots = self.solution.slots()
+        if len(slots) != len(self.clues):
+            raise ValueError(
+                f"clue count ({len(self.clues)}) does not match slot count ({len(slots)})"
+            )
+        return list(zip(slots, self.clues))
+
+    def across_clues(self) -> List[Tuple[int, str]]:
+        return [
+            (slot.number, clue)
+            for slot, clue in self.numbered_clues()
+            if slot.direction == "across"
+        ]
+
+    def down_clues(self) -> List[Tuple[int, str]]:
+        return [
+            (slot.number, clue)
+            for slot, clue in self.numbered_clues()
+            if slot.direction == "down"
+        ]
 
     @classmethod
     def read(cls, path: str) -> "PuzFile":

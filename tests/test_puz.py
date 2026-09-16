@@ -63,6 +63,40 @@ class PuzRoundTripTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 puzzle.write(path)
 
+    def test_numbered_clues_pairs_slots_with_clue_text(self):
+        # a 2x2 open grid has 4 slots: (0,0) starts both an across and a
+        # down entry, (0,1) starts a down, (1,0) starts an across.
+        solution = Grid(["AT", "GO"])
+        fill = Grid(["AT", "GO"])
+        puzzle = PuzFile(
+            solution=solution,
+            fill=fill,
+            clues=["In the manner of", "Toward", "Where a play runs", "Leave"],
+        )
+        slots = solution.slots()
+        self.assertEqual(
+            puzzle.numbered_clues(),
+            [
+                (slots[0], "In the manner of"),
+                (slots[1], "Toward"),
+                (slots[2], "Where a play runs"),
+                (slots[3], "Leave"),
+            ],
+        )
+        self.assertEqual(
+            puzzle.across_clues(), [(1, "In the manner of"), (3, "Leave")]
+        )
+        self.assertEqual(
+            puzzle.down_clues(), [(1, "Toward"), (2, "Where a play runs")]
+        )
+
+    def test_numbered_clues_rejects_mismatched_count(self):
+        solution = Grid(["AT", "GO"])
+        fill = Grid(["AT", "GO"])
+        puzzle = PuzFile(solution=solution, fill=fill, clues=["only one"])
+        with self.assertRaises(ValueError):
+            puzzle.numbered_clues()
+
     def test_rejects_file_without_magic(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = os.path.join(tmpdir, "not-a-puzzle.puz")

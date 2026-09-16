@@ -119,8 +119,21 @@ puzzle.write("crossword-edited.puz")
 
 `solution` and `fill` are `Grid` instances: the solved answers and the
 solver's current progress. `clues` is a flat list of strings in the same
-order as `Grid.slots()` (across then down for each number), but nothing
-associates a given clue with a given slot yet.
+order as `Grid.slots()` (across then down for each number). To pair each
+clue with the slot it belongs to:
+
+```python
+for slot, clue in puzzle.numbered_clues():
+    print(slot.number, slot.direction, clue)
+
+print(puzzle.across_clues())  # [(1, "..."), (3, "..."), ...]
+print(puzzle.down_clues())    # [(1, "..."), (2, "..."), ...]
+```
+
+`numbered_clues()` raises `ValueError` if the clue count doesn't match
+the slot count, which the CLI also reports rather than printing a
+mismatched report. When a `.puz` file has clues, `xgrid puzzle.puz` and
+`--json` include the clue text on each slot.
 
 Only the standard header, grid, and string sections are handled. Rebus
 squares, circled letters, timers, and other optional extension sections
@@ -142,6 +155,6 @@ python -m unittest discover
 
 ## Status
 
-Early. The grid model, numbering, basic `.puz` reading/writing, and the
-`--render` command are solid. Clue text isn't associated with individual
-slots yet, and there's no grid generator.
+Early. The grid model, numbering, basic `.puz` reading/writing, the
+`--render` command, and clue-to-slot association are solid. There's no
+grid generator yet.
