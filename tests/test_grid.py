@@ -122,6 +122,54 @@ class RenderTests(unittest.TestCase):
         self.assertTrue(cell_line.startswith(". "))
 
 
+class ValidateTests(unittest.TestCase):
+    def test_readme_grid_is_symmetric_and_connected(self):
+        # the readme grid has a 2-letter down entry (4 down), so it only
+        # clears validation at the relaxed minimum length.
+        grid = Grid.from_text(README_GRID)
+        self.assertEqual(grid.validate(min_length=2), [])
+
+    def test_asymmetric_grid_is_flagged(self):
+        grid = Grid(["#..", "...", "..."])
+        problems = grid.validate()
+        self.assertTrue(any("symmetric" in p for p in problems))
+
+    def test_short_entry_is_flagged(self):
+        # the down entry at (0, 1) is only 2 letters long.
+        grid = Grid(["###", "..#", "###"])
+        problems = grid.validate()
+        self.assertTrue(any("shorter than the 3-letter minimum" in p for p in problems))
+
+    def test_custom_min_length_is_honored(self):
+        grid = Grid(["###", "..#", "###"])
+        problems = grid.validate(min_length=2)
+        self.assertFalse(any("shorter than" in p for p in problems))
+
+    def test_isolated_cell_is_flagged_as_not_part_of_any_entry(self):
+        grid = Grid(["###", "#.#", "###"])
+        problems = grid.validate()
+        self.assertTrue(any("not part of any entry" in p for p in problems))
+
+    def test_two_disconnected_regions_are_flagged(self):
+        grid = Grid(
+            [
+                "...#...",
+                "...#...",
+                "...#...",
+                "#######",
+                "...#...",
+                "...#...",
+                "...#...",
+            ]
+        )
+        problems = grid.validate()
+        self.assertTrue(any("not fully connected" in p for p in problems))
+
+    def test_fully_open_grid_has_no_problems(self):
+        grid = Grid(["...", "...", "..."])
+        self.assertEqual(grid.validate(), [])
+
+
 class GridConstructionTests(unittest.TestCase):
     def test_from_text_skips_blank_lines(self):
         grid = Grid.from_text("\n\n...\n.#.\n...\n\n")

@@ -75,6 +75,19 @@ $ xgrid puzzle.txt --render
 . . . # #
 ```
 
+Pass `--validate` to check the block layout instead of printing the slot
+report: it checks 180-degree symmetry, flags any entry shorter than
+three letters, and flags white cells that a block layout has split off
+from the rest of the fill. It exits with status 1 if it finds problems.
+
+```
+$ xgrid puzzle.txt --validate
+4 down at row 1 col 1 is 2 letters long, shorter than the 3-letter minimum
+```
+
+`Grid.validate(min_length=3)` is the library equivalent; pass a lower
+`min_length` to relax the minimum entry length.
+
 Pass `--json` for the same report as a JSON object instead of the text
 table above:
 
@@ -156,5 +169,5 @@ python -m unittest discover
 ## Status
 
 Early. The grid model, numbering, basic `.puz` reading/writing, the
-`--render` command, and clue-to-slot association are solid. There's no
-grid generator yet.
+`--render` command, clue-to-slot association, and block layout
+validation are solid. There's no grid generator yet.

@@ -80,6 +80,27 @@ class TextGridTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertFalse(json.loads(out)["symmetric"])
 
+    def test_validate_clean_grid_reports_ok(self):
+        path = os.path.join(self.tmpdir.name, "clean.txt")
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write("...\n...\n...\n")
+        code, out, err = run_cli([path, "--validate"])
+        self.assertEqual(code, 0)
+        self.assertEqual(out, "ok\n")
+        self.assertEqual(err, "")
+
+    def test_validate_broken_grid_lists_problems_and_fails(self):
+        code, out, _ = run_cli([self.path, "--validate"])
+        self.assertEqual(code, 1)
+        self.assertIn("shorter than the 3-letter minimum", out)
+
+    def test_validate_json(self):
+        code, out, _ = run_cli([self.path, "--validate", "--json"])
+        self.assertEqual(code, 1)
+        report = json.loads(out)
+        self.assertFalse(report["valid"])
+        self.assertTrue(len(report["problems"]) >= 1)
+
 
 class PuzFileCliTests(unittest.TestCase):
     def setUp(self):

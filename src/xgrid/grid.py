@@ -91,6 +91,53 @@ class Grid:
                     return False
         return True
 
+    def validate(self, min_length: int = 3) -> List[str]:
+        """Check standard construction rules for the block layout itself
+        (not clue content). Returns a list of problem descriptions; an
+        empty list means the layout is clean.
+        """
+        problems: List[str] = []
+        if not self.is_symmetric():
+            problems.append("block layout is not 180-degree symmetric")
+
+        checked_cells = set()
+        for slot in self.slots():
+            checked_cells.update(slot.cells)
+            if slot.length < min_length:
+                problems.append(
+                    f"{slot.direction} {slot.number} at row {slot.row} col {slot.col} is "
+                    f"{slot.length} letters long, shorter than the {min_length}-letter minimum"
+                )
+
+        for r in range(self.height):
+            for c in range(self.width):
+                if not self.is_block(r, c) and (r, c) not in checked_cells:
+                    problems.append(f"cell at row {r} col {c} is not part of any entry")
+
+        white_cells = [
+            (r, c)
+            for r in range(self.height)
+            for c in range(self.width)
+            if not self.is_block(r, c)
+        ]
+        if white_cells:
+            seen = {white_cells[0]}
+            stack = [white_cells[0]]
+            while stack:
+                r, c = stack.pop()
+                for nr, nc in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
+                    if not self.is_block(nr, nc) and (nr, nc) not in seen:
+                        seen.add((nr, nc))
+                        stack.append((nr, nc))
+            unreachable = len(white_cells) - len(seen)
+            if unreachable:
+                problems.append(
+                    f"grid is not fully connected: {unreachable} white cell(s) can't be "
+                    "reached from the rest of the fill"
+                )
+
+        return problems
+
     def block_count(self) -> int:
         return sum(
             1 for r in range(self.height) for c in range(self.width) if self.is_block(r, c)
